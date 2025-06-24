@@ -120,6 +120,7 @@ export class PromptTextInput {
           }
           this.removeContextPlaceholderOverlay();
           this.checkIsEmpty();
+          this.lastCursorIndex = this.updateCursorPos();
         },
         focus: () => {
           if (typeof this.props.onFocus !== 'undefined') {
@@ -157,6 +158,7 @@ export class PromptTextInput {
             if (this.props.onInput != null) {
               this.props.onInput(new KeyboardEvent('input'));
             }
+            this.lastCursorIndex = this.updateCursorPos();
           }
         },
       },
@@ -349,7 +351,11 @@ export class PromptTextInput {
     if (selection == null ||
       (selection.focusNode?.isSameNode(this.promptTextInput) === false &&
       selection.focusNode?.parentElement?.isSameNode(this.promptTextInput) === false)) {
-      this.promptTextInput.insertChild('beforeend', element as HTMLElement);
+      if (position === 0 && this.promptTextInput.childNodes.length > 0) {
+        this.promptTextInput.insertBefore(element as HTMLElement, this.promptTextInput.childNodes[0]);
+      } else {
+        this.promptTextInput.insertChild('beforeend', element as HTMLElement);
+      }
       return;
     }
 
@@ -414,7 +420,11 @@ export class PromptTextInput {
 
     // Fallback: if nothing was inserted (e.g., prompt is empty), insert at the beginning
     if (!inserted) {
-      this.promptTextInput.insertChild('afterbegin', element as HTMLElement);
+      if (position === 0 && this.promptTextInput.childNodes.length > 0) {
+        this.promptTextInput.insertBefore(element as HTMLElement, this.promptTextInput.childNodes[0]);
+      } else {
+        this.promptTextInput.insertChild('afterbegin', element as HTMLElement);
+      }
     }
 
     if (!maintainCursor) {
